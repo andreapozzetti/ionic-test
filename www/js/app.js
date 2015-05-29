@@ -1,23 +1,68 @@
-// Ionic Starter App
 
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-// 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers'])
+var db = null;
 
-.run(function($ionicPlatform) {
+window.ionic.Platform.ready(function() {
+    angular.bootstrap(document, ['starter']);
+});
+
+angular.module('starter', ['ionic', 'gettext', 'starter.controllers', 'starter.services'])
+.run(function($ionicPlatform, $rootScope, gettextCatalog) {
   $ionicPlatform.ready(function() {
- 
+    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+    // for form inputs)
+    if (window.cordova && window.cordova.plugins.Keyboard) {
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+    }
+    if (window.StatusBar) {
+      // org.apache.cordova.statusbar required
+      StatusBar.styleDefault();
+    }
+
+    /* LANGUAGE */
+
+    if(typeof navigator.globalization !== "undefined") {
+      navigator.globalization.getPreferredLanguage(function(lng) {
+        var lang = lng.value;
+        language = lang.substring(0, 2);
+        gettextCatalog.setCurrentLanguage(language);
+        gettextCatalog.currentLanguage = language;
+      }, null);
+    }
+    
+    /* DATABASE */
+	
+	db = window.sqlitePlugin.openDatabase({name: "oggiinvetrina.db", location: 1});
+
+    db.transaction(function(tx) {
+
+      //OFFER TABLE
+      tx.executeSql('CREATE TABLE IF NOT EXISTS offer (id INTEGER PRIMARY KEY, name TEXT, description TEXT, price REAL, offer_price REAL, discount INTEGER, url_photo_1 TEXT, url_photo_2 TEXT, idShop INTEGER, expire INTEGER, last_update INTEGER)');
+      
+      //SHOP TABLE
+      tx.executeSql('CREATE TABLE IF NOT EXISTS shop (id INTEGER PRIMARY KEY, name TEXT, address TEXT, latitude TEXT, longitude TEXT)');
+
+      //BRAND TABLE 
+      tx.executeSql('CREATE TABLE IF NOT EXISTS brand (id INTEGER PRIMARY KEY, name TEXT)');
+
+      //CATEGORY
+      tx.executeSql('CREATE TABLE IF NOT EXISTS category (id INTEGER PRIMARY KEY, name TEXT)');
+
+      //OFFER_TO_BRAND TABLE
+      tx.executeSql( 'CREATE TABLE IF NOT EXISTS offer_to_brand ( idOffer INTEGER, idBrand INTEGER, PRIMARY KEY( idOffer, idBrand ) )' );
+
+      //OFFER_TO_CATEGORY TABLE
+      tx.executeSql( 'CREATE TABLE IF NOT EXISTS offer_to_category ( idOffer INTEGER, idCategory INTEGER, PRIMARY KEY( idOffer, idCategory ) )' );
+    });    
   });
 })
 
-.config(function($compileProvider, $stateProvider, $urlRouterProvider) {
-	
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|ghttps?|ms-appx|x-wmapp0):/);
-    // // Use $compileProvider.urlSanitizationWhitelist(...) for Angular 1.2
-  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|ms-appx|x-wmapp0):|data:image\//);
-	
+.constant('$ionicLoadingConfig', {
+  content: '<ion-spinner class="spinner-light"></ion-spinner>',
+  animation: 'fade-in',
+  showBackdrop: true
+})
+
+.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
 
   .state('app', {
@@ -44,25 +89,47 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       }
     }
   })
-    .state('app.playlists', {
-      url: "/playlists",
-      views: {
-        'menuContent': {
-          templateUrl: "templates/playlists.html",
-          controller: 'PlaylistsCtrl'
-        }
-      }
-    })
 
-  .state('app.single', {
-    url: "/playlists/:playlistId",
+  
+  .state('app.categories', {
+    url: "/categories",
+      views: {
+      'menuContent': {
+        templateUrl: "templates/categories.html",
+        controller: 'CategoriesCtrl'
+      }
+    }
+  })
+
+  .state('app.categoryoffers', {
+    url: "/offers/category/:id",
+      views: {
+      'menuContent': {
+        templateUrl: "templates/offers.html",
+        controller: 'CategoryOffersCtrl'
+      }
+    }
+  })
+
+  .state('app.offers', {
+    url: "/offers",
+      views: {
+      'menuContent': {
+        templateUrl: "templates/offers.html",
+        controller: 'OffersCtrl'
+      }
+    }
+  })
+
+  .state('app.offer', {
+    url: "/offers/:id",
     views: {
       'menuContent': {
-        templateUrl: "templates/playlist.html",
-        controller: 'PlaylistCtrl'
+        templateUrl: "templates/offer.html",
+        controller: 'offerCtrl'
       }
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/playlists');
+  $urlRouterProvider.otherwise('/app/offers');
 });
