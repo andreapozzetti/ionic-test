@@ -115,8 +115,8 @@ angular.module('starter.controllers', [])
   });
   
   $scope.goToOffer = function(idOffer){
-	  alert(idOffer);
-	  alert('ciao');
+	  navigator.notification.alert(idOffer);
+	  navigator.notification.alert('ciao');
 	  $location.path('app/offers/'+idOffer+'');
   }
 
