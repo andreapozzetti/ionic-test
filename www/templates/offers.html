@@ -19,7 +19,7 @@
 			</div>
 		</div>
 		<div class="list card" ng-repeat="offer in offers | orderBy:order:reverse | filter:query" ng-hide="noOffers">
-			<a class="offer-list" href="#/app/offers/{{offer.id}}"> 
+			<a class="offer-list" ng-click="goTooffer(offer.id)"> 
 			<div class="item item-image">
 				<img style="max-height:240px; max-width:640px" class="module bounce" src="{{offer.photo_1}}" >
 			</div>

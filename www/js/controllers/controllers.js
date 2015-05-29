@@ -63,7 +63,7 @@ angular.module('starter.controllers', [])
   
 })
 
-.controller('OffersCtrl', function($scope, $timeout, $ionicLoading, sync) {
+.controller('OffersCtrl', function($scope, $location, $timeout, $ionicLoading, sync) {
 
   $ionicLoading.show();
 
@@ -113,6 +113,10 @@ angular.module('starter.controllers', [])
           return $scope.offers;
       });
   });
+  
+  $scope.goToOffer = function(idOffer){
+	  $location.path('/offers/'+idOffer+'');
+  }
 
 })
 
