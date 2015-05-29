@@ -65,12 +65,6 @@ angular.module('starter.controllers', [])
 
 .controller('OffersCtrl', function($scope, $timeout, $ionicLoading, sync) {
 
-  navigator.analytics.sendAppView('Offers List', function(){
-      console.log('Offers List tracking success');
-    }, function(){
-      console.log('Offers List tracking error');
-    });
-
   $ionicLoading.show();
 
   var options = {"idCategory": 2};
@@ -127,11 +121,6 @@ angular.module('starter.controllers', [])
   var idOffer = $stateParams.id;
   $scope.offer = sync.getOffer(idOffer).then(function(res){
     $scope.offer = res[0];
-    navigator.analytics.sendAppView('Offer page: '+$scope.offer.name+'', function(){
-        console.log('Offer page: '+$scope.offer.name+' tracking success');
-      }, function(){
-        console.log('Offer page: '+$scope.offer.name+' tracking error');
-      });
     $ionicSlideBoxDelegate.update();
       return $scope.offer;
   });
